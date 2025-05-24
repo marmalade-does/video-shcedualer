@@ -238,18 +238,34 @@
     </div>
 
     <script>
-        let videos = [
-            { name: 'Morning Routine', url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
-            { name: 'Workout Session', url: 'https://www.youtube.com/watch?v=9bZkp7q19f0' },
-            { name: 'Meditation Time', url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk' },
-            { name: 'Evening Reflection', url: 'https://www.youtube.com/watch?v=kJQP7kiw5Fk' }
-        ];
-        
+        let videos = [];
         let currentVideoIndex = 0;
         let isPlaying = false;
         let isAutoMode = false;
         let currentPlayer = null;
         let autoPlayTimer = null;
+        
+        // Load saved videos or use defaults
+        function loadVideos() {
+            const saved = localStorage.getItem('videoSchedulerList');
+            if (saved) {
+                videos = JSON.parse(saved);
+            } else {
+                // Default videos if none saved
+                videos = [
+                    { name: 'Morning Routine', url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+                    { name: 'Workout Session', url: 'https://www.youtube.com/watch?v=9bZkp7q19f0' },
+                    { name: 'Meditation Time', url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk' },
+                    { name: 'Evening Reflection', url: 'https://www.youtube.com/watch?v=kJQP7kiw5Fk' }
+                ];
+                saveVideos();
+            }
+        }
+        
+        // Save videos to localStorage
+        function saveVideos() {
+            localStorage.setItem('videoSchedulerList', JSON.stringify(videos));
+        }
         
         function getYouTubeVideoId(url) {
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -279,7 +295,7 @@
             document.getElementById('timeDisplay').textContent = timeString;
             
             const hour = now.getHours();
-            const shouldAutoPlay = (hour >= 5 && hour < 9); // 5-9 AM or 5-9 PM
+            const shouldAutoPlay = (hour >= 10 && hour < 11); // 5-9 AM or 5-9 PM
             
             if (shouldAutoPlay && !isAutoMode) {
                 enterAutoMode();
@@ -381,6 +397,7 @@
                     videos.push({ name: videoName, url: videoUrl });
                     nameInput.value = '';
                     urlInput.value = '';
+                    saveVideos(); // Save to localStorage
                     updateVideoList();
                 } else {
                     alert('Please enter a valid YouTube URL');
@@ -394,6 +411,7 @@
                 if (currentVideoIndex >= videos.length) {
                     currentVideoIndex = 0;
                 }
+                saveVideos(); // Save to localStorage
                 updateVideoList();
             }
         }
@@ -410,6 +428,7 @@
                 currentVideoIndex++;
             }
             
+            saveVideos(); // Save to localStorage
             updateVideoList();
         }
         
@@ -456,6 +475,7 @@
         }
         
         // Initialize app
+        loadVideos(); // Load saved videos first
         updateTime();
         updateVideoList();
         setInterval(updateTime, 1000);
@@ -474,4 +494,4 @@
         });
     </script>
 </body>
-</html>ss
+</html>
