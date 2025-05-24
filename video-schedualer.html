@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Video Scheduler">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIHJ4PSIzMiIgZmlsbD0iIzY2N2VlYSIvPjxwYXRoIGQ9Ik03MiA2NHY2NGwyNi0xNi0yNi0xNiAyNi0xNnoiIGZpbGw9IndoaXRlIi8+PC9zdmc+">
+    <title>Video Scheduler</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .time-display {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        .status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.2);
+            display: inline-block;
+            font-size: 14px;
+        }
+        
+        .auto-mode {
+            background: #4CAF50;
+        }
+        
+        .manual-mode {
+            background: #FF9800;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .video-player {
+            width: 100%;
+            height: 250px;
+            background: #000;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .video-player iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 10px;
+        }
+        
+        .video-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: white;
+            font-size: 16px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .play-btn {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .pause-btn {
+            background: #FF5722;
+            color: white;
+        }
+        
+        .next-btn {
+            background: #2196F3;
+            color: white;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .video-list {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .video-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .video-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .drag-handle {
+            margin-right: 10px;
+            cursor: grab;
+            font-size: 18px;
+            color: #666;
+        }
+        
+        .video-name {
+            flex: 1;
+            font-weight: 500;
+        }
+        
+        .remove-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .add-video {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .add-video input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .add-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .playing {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="time-display" id="timeDisplay">00:00:00</div>
+            <div class="status" id="statusDisplay">Manual Mode</div>
+        </div>
+        
+        <div class="content">
+            <div class="video-player" id="videoPlayer">
+                <div class="video-placeholder" id="playerText">No video selected</div>
+            </div>
+            
+            <div class="controls" id="controls">
+                <button class="play-btn" onclick="playVideo()">▶ Play</button>
+                <button class="pause-btn" onclick="stopVideo()">⏹ Stop</button>
+                <button class="next-btn" onclick="nextVideo()">⏭ Next</button>
+            </div>
+            
+            <div class="video-list" id="videoList">
+                <h3 style="margin-bottom: 15px; color: #333;">Video Queue</h3>
+                <div id="videoItems"></div>
+            </div>
+            
+            <div id="editControls">
+                <div class="add-video">
+                    <input type="text" id="videoNameInput" placeholder="Video name" maxlength="30">
+                    <input type="url" id="videoUrlInput" placeholder="YouTube URL">
+                    <button class="add-btn" onclick="addVideo()">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let videos = [
+            { name: 'Morning Routine', url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+            { name: 'Workout Session', url: 'https://www.youtube.com/watch?v=9bZkp7q19f0' },
+            { name: 'Meditation Time', url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk' },
+            { name: 'Evening Reflection', url: 'https://www.youtube.com/watch?v=kJQP7kiw5Fk' }
+        ];
+        
+        let currentVideoIndex = 0;
+        let isPlaying = false;
+        let isAutoMode = false;
+        let currentPlayer = null;
+        let autoPlayTimer = null;
+        
+        function getYouTubeVideoId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+        
+        function createYouTubeEmbed(videoId) {
+            return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&controls=1&showinfo=0&fs=1&cc_load_policy=0&iv_load_policy=3&autohide=1&end_on_close=1`;
+        }
+        
+        function onYouTubeIframeAPIReady() {
+            // YouTube API ready
+        }
+        
+        // Load YouTube API
+        if (!window.YT) {
+            const tag = document.createElement('script');
+            tag.src = 'https://www.youtube.com/iframe_api';
+            const firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            document.getElementById('timeDisplay').textContent = timeString;
+            
+            const hour = now.getHours();
+            const shouldAutoPlay = (hour >= 5 && hour < 9); // 5-9 AM or 5-9 PM
+            
+            if (shouldAutoPlay && !isAutoMode) {
+                enterAutoMode();
+            } else if (!shouldAutoPlay && isAutoMode) {
+                exitAutoMode();
+            }
+        }
+        
+        function enterAutoMode() {
+            isAutoMode = true;
+            document.getElementById('statusDisplay').textContent = 'Auto Mode Active';
+            document.getElementById('statusDisplay').className = 'status auto-mode';
+            document.getElementById('editControls').classList.add('hidden');
+            
+            // Start auto-playing videos
+            currentVideoIndex = 0;
+            playVideo();
+        }
+        
+        function exitAutoMode() {
+            isAutoMode = false;
+            document.getElementById('statusDisplay').textContent = 'Manual Mode';
+            document.getElementById('statusDisplay').className = 'status manual-mode';
+            document.getElementById('editControls').classList.remove('hidden');
+            
+            // Stop auto-playing
+            if (autoPlayTimer) {
+                clearInterval(autoPlayTimer);
+                autoPlayTimer = null;
+            }
+            stopVideo();
+        }
+        
+        function playVideo() {
+            if (videos.length === 0) return;
+            
+            isPlaying = true;
+            const videoPlayer = document.getElementById('videoPlayer');
+            const currentVideo = videos[currentVideoIndex];
+            const videoId = getYouTubeVideoId(currentVideo.url);
+            
+            if (videoId) {
+                const embedUrl = createYouTubeEmbed(videoId);
+                videoPlayer.innerHTML = `<iframe src="${embedUrl}" allowfullscreen></iframe>`;
+                
+                // Set up auto-advance timer (assuming average 4-minute videos)
+                if (autoPlayTimer) clearTimeout(autoPlayTimer);
+                if (isAutoMode) {
+                    autoPlayTimer = setTimeout(() => {
+                        nextVideo();
+                    }, 240000); // 4 minutes
+                }
+            } else {
+                videoPlayer.innerHTML = `<div class="video-placeholder">▶ Playing: ${currentVideo.name}<br><small>Invalid YouTube URL</small></div>`;
+            }
+            
+            updateVideoList();
+        }
+        
+        function stopVideo() {
+            isPlaying = false;
+            const videoPlayer = document.getElementById('videoPlayer');
+            const currentVideo = videos[currentVideoIndex];
+            
+            videoPlayer.innerHTML = `<div class="video-placeholder">⏹ Stopped: ${currentVideo ? currentVideo.name : 'No video'}</div>`;
+            
+            if (autoPlayTimer) {
+                clearInterval(autoPlayTimer);
+                autoPlayTimer = null;
+            }
+            
+            updateVideoList();
+        }
+        
+        function nextVideo() {
+            if (videos.length === 0) return;
+            
+            currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+            
+            if (isPlaying || isAutoMode) {
+                playVideo();
+            } else {
+                const videoPlayer = document.getElementById('videoPlayer');
+                const currentVideo = videos[currentVideoIndex];
+                videoPlayer.innerHTML = `<div class="video-placeholder">Next: ${currentVideo.name}</div>`;
+                updateVideoList();
+            }
+        }
+        
+        function addVideo() {
+            const nameInput = document.getElementById('videoNameInput');
+            const urlInput = document.getElementById('videoUrlInput');
+            const videoName = nameInput.value.trim();
+            const videoUrl = urlInput.value.trim();
+            
+            if (videoName && videoUrl && videos.length < 10) {
+                const videoId = getYouTubeVideoId(videoUrl);
+                if (videoId) {
+                    videos.push({ name: videoName, url: videoUrl });
+                    nameInput.value = '';
+                    urlInput.value = '';
+                    updateVideoList();
+                } else {
+                    alert('Please enter a valid YouTube URL');
+                }
+            }
+        }
+        
+        function removeVideo(index) {
+            if (videos.length > 1) {
+                videos.splice(index, 1);
+                if (currentVideoIndex >= videos.length) {
+                    currentVideoIndex = 0;
+                }
+                updateVideoList();
+            }
+        }
+        
+        function moveVideo(from, to) {
+            const item = videos.splice(from, 1)[0];
+            videos.splice(to, 0, item);
+            
+            if (currentVideoIndex === from) {
+                currentVideoIndex = to;
+            } else if (from < currentVideoIndex && to >= currentVideoIndex) {
+                currentVideoIndex--;
+            } else if (from > currentVideoIndex && to <= currentVideoIndex) {
+                currentVideoIndex++;
+            }
+            
+            updateVideoList();
+        }
+        
+        function updateVideoList() {
+            const container = document.getElementById('videoItems');
+            container.innerHTML = '';
+            
+            videos.forEach((video, index) => {
+                const item = document.createElement('div');
+                item.className = 'video-item';
+                if (index === currentVideoIndex) {
+                    item.style.border = '2px solid #4CAF50';
+                }
+                
+                item.innerHTML = `
+                    <span class="drag-handle" draggable="true">⋮⋮</span>
+                    <span class="video-name">${video.name}</span>
+                    ${!isAutoMode && videos.length > 1 ? `<button class="remove-btn" onclick="removeVideo(${index})">✕</button>` : ''}
+                `;
+                
+                // Add drag and drop functionality
+                if (!isAutoMode) {
+                    item.draggable = true;
+                    item.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.setData('text/plain', index);
+                    });
+                    
+                    item.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                    });
+                    
+                    item.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                        const toIndex = index;
+                        if (fromIndex !== toIndex) {
+                            moveVideo(fromIndex, toIndex);
+                        }
+                    });
+                }
+                
+                container.appendChild(item);
+            });
+        }
+        
+        // Initialize app
+        updateTime();
+        updateVideoList();
+        setInterval(updateTime, 1000);
+        
+        // Handle input enter key for both inputs
+        document.getElementById('videoNameInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('videoUrlInput').focus();
+            }
+        });
+        
+        document.getElementById('videoUrlInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addVideo();
+            }
+        });
+    </script>
+</body>
+</html>ss
