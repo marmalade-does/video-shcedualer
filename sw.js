@@ -1,8 +1,7 @@
-const CACHE_NAME = 'video-scheduler-v1';
+const CACHE_NAME = 'video-schedualer-v1';
 const urlsToCache = [
-  '/video-shcedualer/',
-  '/video-shcedualer/index.html',
-  '/video-shcedualer/manifest.json',
+  './',
+  './index.html'
 ];
 
 // Install event - cache resources
