@@ -295,7 +295,7 @@
             document.getElementById('timeDisplay').textContent = timeString;
             
             const hour = now.getHours();
-            const shouldAutoPlay = (hour >= 10 && hour < 11); // 5-9 AM or 5-9 PM
+            const shouldAutoPlay = (hour >= 5 && hour < 10); // 5-9 AM or 5-9 PM
             
             if (shouldAutoPlay && !isAutoMode) {
                 enterAutoMode();
